@@ -1,0 +1,25 @@
+﻿<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.github.gino0631</groupId>
+    <artifactId>xar-root</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>xar-core</artifactId>
+  <packaging>jar</packaging>
+
+  <name>XAR Core Library</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.github.gino0631</groupId>
+      <artifactId>xar-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+    </dependency>
+  </dependencies>
+</project>
