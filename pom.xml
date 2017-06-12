@@ -3,7 +3,7 @@
 
   <groupId>com.github.gino0631</groupId>
   <artifactId>xar-root</artifactId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>XAR Project Root</name>
@@ -36,7 +36,7 @@
     <connection>scm:git:git://github.com/gino0631/xar.git</connection>
     <developerConnection>scm:git:git@github.com:gino0631/xar.git</developerConnection>
     <url>https://github.com/gino0631/xar</url>
-    <tag>xar-root-1.0</tag>
+    <tag>HEAD</tag>
   </scm>
   <distributionManagement>
     <repository>
