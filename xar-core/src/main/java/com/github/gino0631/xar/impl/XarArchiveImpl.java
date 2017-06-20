@@ -1,5 +1,7 @@
 package com.github.gino0631.xar.impl;
 
+import com.github.gino0631.common.io.InputStreamSupplier;
+import com.github.gino0631.common.io.IoStreams;
 import com.github.gino0631.xar.ChecksumAlgorithm;
 import com.github.gino0631.xar.EncodingAlgorithm;
 import com.github.gino0631.xar.XarArchive;
@@ -8,7 +10,6 @@ import com.github.gino0631.xar.impl.jaxb.toc.*;
 import com.github.gino0631.xar.impl.signature.AbstractSignature;
 import com.github.gino0631.xar.impl.signature.CmsSignature;
 import com.github.gino0631.xar.impl.signature.RsaSignature;
-import com.github.gino0631.xar.io.InputStreamSupplier;
 import org.bouncycastle.tsp.TimeStampToken;
 
 import javax.xml.bind.DatatypeConverter;
@@ -413,7 +414,7 @@ public final class XarArchiveImpl implements XarArchive {
         checkNotClosed();
 
         if (heapOffset > 0) {
-            IoUtils.copy(streamSupplier.newInputStream(), output);
+            IoStreams.copy(streamSupplier.newInputStream(), output);
 
         } else {
             // Write header
@@ -434,15 +435,15 @@ public final class XarArchiveImpl implements XarArchive {
             }
 
             // Write heap
-            IoUtils.copy(streamSupplier.newInputStream(), output);
+            IoStreams.copy(streamSupplier.newInputStream(), output);
         }
     }
 
     @Override
     public void close() {
         if (streamSupplier != null) {
-            IoUtils.deleteSilently(tocFile);
-            IoUtils.deleteSilently(tmpHeapFile);
+            XarBuilderImpl.deleteTempFile(tocFile);
+            XarBuilderImpl.deleteTempFile(tmpHeapFile);
 
             streamSupplier = null;
         }
@@ -458,7 +459,7 @@ public final class XarArchiveImpl implements XarArchive {
         byte[] buf = new byte[cnt];
 
         try (InputStream is = streamSupplier.newInputStream()) {
-            IoUtils.skip(is, pos);
+            IoStreams.skip(is, pos);
             DataInputStream dis = new DataInputStream(is);
             dis.readFully(buf);
         }

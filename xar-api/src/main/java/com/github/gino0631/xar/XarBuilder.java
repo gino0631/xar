@@ -34,6 +34,8 @@ public interface XarBuilder extends Closeable {
     interface Container {
         /**
          * Adds a file to the container.
+         * <p>
+         * The provided input stream will not be closed afterwards.
          *
          * @param name              name of the file to add
          * @param encodingAlgorithm encoding algorithm to use
@@ -111,9 +113,8 @@ public interface XarBuilder extends Closeable {
      * Builds XAR archive.
      *
      * @return a representation of the new XAR archive
-     * @throws IOException if an I/O error occurs
      */
-    XarArchive build() throws IOException;
+    XarArchive build();
 
     /**
      * Gets an instance of {@code XarBuilder}.

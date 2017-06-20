@@ -61,6 +61,11 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.github.gino0631</groupId>
+        <artifactId>clove-io</artifactId>
+        <version>0.1</version>
+      </dependency>
+      <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
         <version>1.57</version>

@@ -1,5 +1,6 @@
 package com.github.gino0631.xar.impl;
 
+import com.github.gino0631.common.io.IoStreams;
 import com.github.gino0631.xar.ChecksumAlgorithm;
 import com.github.gino0631.xar.EncodingAlgorithm;
 
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.text.MessageFormat;
 
 final class XarInputStream extends InputStream {
     private final InputStream inputStream;
@@ -28,9 +30,11 @@ final class XarInputStream extends InputStream {
         this.archivedChecksumVerifier = archivedChecksumVerifier;
         this.extractedChecksumVerifier = extractedChecksumVerifier;
 
-        IoUtils.skip(is, pos);
+        if (IoStreams.skip(is, pos) != pos) {
+            throw new IOException(MessageFormat.format("Stream should contain at least {0} bytes, but it does not", pos + length));
+        }
 
-        is = new LimitedInputStream(is, length);
+        is = IoStreams.limit(is, length);
 
         // Archived data checksum calculator
         if (archivedChecksumAlgorithm != ChecksumAlgorithm.NONE) {
@@ -70,7 +74,7 @@ final class XarInputStream extends InputStream {
 
     @Override
     public long skip(long n) throws IOException {
-        return IoUtils.skipByReading(inputStream, n);   // because DigestInputStream.skip() does not update digest
+        return IoStreams.waste(inputStream, n);     // because DigestInputStream.skip() does not update digest
     }
 
     @Override
@@ -84,7 +88,7 @@ final class XarInputStream extends InputStream {
             try {
                 if ((archivedChecksumVerifier != null) || (extractedChecksumVerifier != null)) {
                     if (available() > 0) {
-                        IoUtils.skipAll(this);
+                        IoStreams.exhaust(this);
                     }
 
                     if (archivedChecksumVerifier != null) {

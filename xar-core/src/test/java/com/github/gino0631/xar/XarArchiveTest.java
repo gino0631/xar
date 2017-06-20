@@ -1,6 +1,6 @@
 package com.github.gino0631.xar;
 
-import com.github.gino0631.xar.impl.IoUtils;
+import com.github.gino0631.common.io.IoStreams;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -164,7 +164,7 @@ public class XarArchiveTest {
 
         if (size >= 0) {
             try (InputStream is = entry.newInputStream()) {
-                assertEquals(size, IoUtils.skipAll(is));
+                assertEquals(size, IoStreams.exhaust(is));
             }
         }
     }
@@ -181,7 +181,7 @@ public class XarArchiveTest {
 
                 } else {
                     try (InputStream is = e.newInputStream()) {
-                        IoUtils.skipAllByReading(is);
+                        IoStreams.exhaust(is);
                     }
                 }
             }

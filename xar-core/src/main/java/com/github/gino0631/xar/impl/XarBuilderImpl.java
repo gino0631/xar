@@ -1,5 +1,7 @@
 package com.github.gino0631.xar.impl;
 
+import com.github.gino0631.common.io.IoFiles;
+import com.github.gino0631.common.io.IoStreams;
 import com.github.gino0631.xar.ChecksumAlgorithm;
 import com.github.gino0631.xar.EncodingAlgorithm;
 import com.github.gino0631.xar.XarArchive;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class XarBuilderImpl implements XarBuilder {
@@ -90,12 +93,17 @@ public final class XarBuilderImpl implements XarBuilder {
         }
     }
 
-    XarBuilderImpl() throws IOException {
+    XarBuilderImpl() {
         toc = new XarToc(ObjectFactory.newXmlGregorianCalendar(),
                 new TocChecksum(checksumAlgorithm.getType(), 0, checksumAlgorithm.getChecksumSize()));
 
-        heapFile = IoUtils.createTempFile("xar-heap-");
-        outputChannel = Files.newByteChannel(heapFile, StandardOpenOption.WRITE);
+        try {
+            heapFile = IoFiles.createTempFile("xar-heap-");
+            outputChannel = Files.newByteChannel(heapFile, StandardOpenOption.WRITE);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         root = new Container() {
             @Override
@@ -155,7 +163,7 @@ public final class XarBuilderImpl implements XarBuilder {
     }
 
     @Override
-    public synchronized XarArchive build() throws IOException {
+    public synchronized XarArchive build() {
         checkNotClosed();
 
         XarArchive xarArchive = null;
@@ -164,7 +172,7 @@ public final class XarBuilderImpl implements XarBuilder {
         try {
             outputChannel.close();
 
-            tocFile = IoUtils.createTempFile("xar-toc-");
+            tocFile = IoFiles.createTempFile("xar-toc-");
             long tocLengthCompressed;
             long tocLengthUncompressed;
             byte[] tocChecksum;
@@ -209,7 +217,7 @@ public final class XarBuilderImpl implements XarBuilder {
                 try (OutputStream fos = Files.newOutputStream(tocFile)) {
                     Holder<byte[]> computedChecksum = new Holder<>();
 
-                    XarOutputStream xos = new XarOutputStream(IoUtils.closeProtect(fos), EncodingAlgorithm.ZLIB,
+                    XarOutputStream xos = new XarOutputStream(IoStreams.closeProtect(fos), EncodingAlgorithm.ZLIB,
                             checksumAlgorithm, (c) -> computedChecksum.value = c,
                             ChecksumAlgorithm.NONE, null);
 
@@ -254,11 +262,14 @@ public final class XarBuilderImpl implements XarBuilder {
 
             return xarArchive;
 
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+
         } finally {
             if (xarArchive == null) {
                 // Something went wrong - clean up now
-                IoUtils.deleteSilently(heapFile);
-                IoUtils.deleteSilently(tocFile);
+                deleteTempFile(heapFile);
+                deleteTempFile(tocFile);
             }
         }
     }
@@ -268,7 +279,7 @@ public final class XarBuilderImpl implements XarBuilder {
         if (outputChannel.isOpen()) {
             outputChannel.close();
 
-            IoUtils.deleteSilently(heapFile);
+            deleteTempFile(heapFile);
         }
     }
 
@@ -284,12 +295,12 @@ public final class XarBuilderImpl implements XarBuilder {
 
         outputChannel.position(pos);
 
-        XarOutputStream xos = new XarOutputStream(IoUtils.closeProtect(Channels.newOutputStream(outputChannel)), encodingAlgorithm,
+        XarOutputStream xos = new XarOutputStream(IoStreams.closeProtect(Channels.newOutputStream(outputChannel)), encodingAlgorithm,
                 checksumAlgorithm, (c) -> archivedChecksum.value = c,
                 checksumAlgorithm, (c) -> extractedChecksum.value = c);
 
         try (OutputStream os = xos) {
-            IoUtils.copy(input, os);
+            IoStreams.copy(input, os);
         }
 
         verifyChecksumSize(archivedChecksum.value, checksumAlgorithm);
@@ -305,6 +316,10 @@ public final class XarBuilderImpl implements XarBuilder {
         pos += bytesWritten;
 
         return fileData;
+    }
+
+    static void deleteTempFile(Path file) {
+        IoFiles.delete(file, e -> logger.log(Level.WARNING, MessageFormat.format("Error deleting {0}", file), e));
     }
 
     private static void logRetrying(int actualSize, int estimatedSize) {
