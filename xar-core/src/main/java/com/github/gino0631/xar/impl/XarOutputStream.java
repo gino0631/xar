@@ -1,5 +1,6 @@
 package com.github.gino0631.xar.impl;
 
+import com.github.gino0631.common.io.IoStreams;
 import com.github.gino0631.xar.ChecksumAlgorithm;
 import com.github.gino0631.xar.EncodingAlgorithm;
 
@@ -31,7 +32,7 @@ final class XarOutputStream extends OutputStream {
         this.archivedChecksumConsumer = archivedChecksumConsumer;
         this.extractedChecksumConsumer = extractedChecksumConsumer;
 
-        os = new CounterOutputStream(os, archivedSize::addAndGet);
+        os = IoStreams.count(os, archivedSize::addAndGet);
 
         // Archived data checksum calculator
         if (archivedChecksumAlgorithm != ChecksumAlgorithm.NONE) {
@@ -56,7 +57,7 @@ final class XarOutputStream extends OutputStream {
             extractedChecksumMessageDigest = null;
         }
 
-        outputStream = new CounterOutputStream(os, extractedSize::addAndGet);
+        outputStream = IoStreams.count(os, extractedSize::addAndGet);
     }
 
     public long getArchivedSize() {

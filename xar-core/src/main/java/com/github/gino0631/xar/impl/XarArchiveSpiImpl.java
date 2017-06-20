@@ -1,7 +1,7 @@
 package com.github.gino0631.xar.impl;
 
+import com.github.gino0631.common.io.InputStreamSupplier;
 import com.github.gino0631.xar.XarArchive;
-import com.github.gino0631.xar.io.InputStreamSupplier;
 import com.github.gino0631.xar.spi.XarArchiveSpi;
 
 import java.io.IOException;

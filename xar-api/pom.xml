@@ -13,5 +13,9 @@
   <name>XAR API</name>
 
   <dependencies>
+    <dependency>
+      <groupId>com.github.gino0631</groupId>
+      <artifactId>clove-io</artifactId>
+    </dependency>
   </dependencies>
 </project>

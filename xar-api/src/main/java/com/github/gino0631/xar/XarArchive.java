@@ -1,6 +1,7 @@
 package com.github.gino0631.xar;
 
-import com.github.gino0631.xar.io.InputStreamSupplier;
+import com.github.gino0631.common.io.InputStreamSupplier;
+import com.github.gino0631.common.io.Writable;
 import com.github.gino0631.xar.spi.ServiceUtils;
 import com.github.gino0631.xar.spi.XarArchiveSpi;
 
@@ -17,9 +18,9 @@ import java.util.List;
 /**
  * XAR archive representation.
  * <p>
- * The implementations must be immutable and thread-safe.
+ * Implementations of this interface are required to be thread-safe.
  */
-public interface XarArchive extends Closeable {
+public interface XarArchive extends Writable, Closeable {
     /**
      * XAR header representation.
      */
