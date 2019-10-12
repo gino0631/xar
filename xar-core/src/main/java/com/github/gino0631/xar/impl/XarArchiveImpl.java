@@ -14,7 +14,6 @@ import org.bouncycastle.tsp.TimeStampToken;
 
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.ws.Holder;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -346,10 +345,10 @@ public final class XarArchiveImpl implements XarArchive {
 
         // Read ToC
         {
-            Holder<byte[]> computedChecksum = new Holder<>();
+            ChecksumHolder computedChecksumHolder = new ChecksumHolder();
 
             try (XarInputStream xis = new XarInputStream(streamSupplier.newInputStream(), header.getSize(), header.getTocLengthCompressed(), EncodingAlgorithm.ZLIB,
-                    header.getChecksumAlgorithm(), (c) -> computedChecksum.value = c,
+                    header.getChecksumAlgorithm(), computedChecksumHolder,
                     ChecksumAlgorithm.NONE, null)) {
 
                 toc = ObjectFactory.unmarshal(xis).getToc();
@@ -358,7 +357,7 @@ public final class XarArchiveImpl implements XarArchive {
             TocChecksum checksumInfo = toc.getChecksum();
             tocChecksum = read(heapOffset + checksumInfo.getOffset(), checksumInfo.getSize());
 
-            verifyChecksum(tocChecksum, computedChecksum.value);
+            verifyChecksum(tocChecksum, computedChecksumHolder.getChecksum());
         }
 
         signature = convert(toc.getSignature());
