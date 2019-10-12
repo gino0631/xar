@@ -11,7 +11,6 @@ import com.github.gino0631.xar.impl.jaxb.toc.*;
 import com.github.gino0631.xar.impl.signature.CmsSignature;
 import com.github.gino0631.xar.impl.signature.RsaSignature;
 
-import javax.xml.ws.Holder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -215,10 +214,10 @@ public final class XarBuilderImpl implements XarBuilder {
 
                 // Serialize ToC
                 try (OutputStream fos = Files.newOutputStream(tocFile)) {
-                    Holder<byte[]> computedChecksum = new Holder<>();
+                    ChecksumHolder computedChecksumHolder = new ChecksumHolder();
 
                     XarOutputStream xos = new XarOutputStream(IoStreams.closeProtect(fos), EncodingAlgorithm.ZLIB,
-                            checksumAlgorithm, (c) -> computedChecksum.value = c,
+                            checksumAlgorithm, computedChecksumHolder,
                             ChecksumAlgorithm.NONE, null);
 
                     try (OutputStream os = xos) {
@@ -228,11 +227,11 @@ public final class XarBuilderImpl implements XarBuilder {
                     tocLengthCompressed = xos.getArchivedSize();
                     tocLengthUncompressed = xos.getExtractedSize();
 
-                    if (computedChecksum.value.length != toc.getChecksum().getSize()) {
+                    if (computedChecksumHolder.getChecksum().length != toc.getChecksum().getSize()) {
                         throw new IllegalStateException();
                     }
 
-                    fos.write(tocChecksum = computedChecksum.value);
+                    fos.write(tocChecksum = computedChecksumHolder.getChecksum());
                 }
 
                 if (signingPrivateKey != null) {
@@ -290,28 +289,28 @@ public final class XarBuilderImpl implements XarBuilder {
     }
 
     private FileData writeData(InputStream input, EncodingAlgorithm encodingAlgorithm) throws IOException {
-        Holder<byte[]> archivedChecksum = new Holder<>();
-        Holder<byte[]> extractedChecksum = new Holder<>();
+        ChecksumHolder archivedChecksumHolder = new ChecksumHolder();
+        ChecksumHolder extractedChecksumHolder = new ChecksumHolder();
 
         outputChannel.position(pos);
 
         XarOutputStream xos = new XarOutputStream(IoStreams.closeProtect(Channels.newOutputStream(outputChannel)), encodingAlgorithm,
-                checksumAlgorithm, (c) -> archivedChecksum.value = c,
-                checksumAlgorithm, (c) -> extractedChecksum.value = c);
+                checksumAlgorithm, archivedChecksumHolder,
+                checksumAlgorithm, extractedChecksumHolder);
 
         try (OutputStream os = xos) {
             IoStreams.copy(input, os);
         }
 
-        verifyChecksumSize(archivedChecksum.value, checksumAlgorithm);
-        verifyChecksumSize(extractedChecksum.value, checksumAlgorithm);
+        verifyChecksumSize(archivedChecksumHolder.getChecksum(), checksumAlgorithm);
+        verifyChecksumSize(extractedChecksumHolder.getChecksum(), checksumAlgorithm);
 
         long bytesWritten = xos.getArchivedSize();
 
         FileData fileData = new FileData(bytesWritten, pos + toc.getChecksum().getSize(), xos.getExtractedSize(),
                 new DataEncoding(encodingAlgorithm.getType()),
-                new DataChecksum(checksumAlgorithm.getType(), archivedChecksum.value),
-                new DataChecksum(checksumAlgorithm.getType(), extractedChecksum.value));
+                new DataChecksum(checksumAlgorithm.getType(), archivedChecksumHolder.getChecksum()),
+                new DataChecksum(checksumAlgorithm.getType(), extractedChecksumHolder.getChecksum()));
 
         pos += bytesWritten;
 
