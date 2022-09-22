@@ -5,7 +5,8 @@
 A Java library for working with [XAR archives](https://en.wikipedia.org/wiki/Xar_(archiver)). It supports both reading and creation of archives, with optional signing and time stamping.
 
 # Requirements
-* Java 8
+* Java 8 or higher
+* Jakarta XML Binding 3.0 implementation
 
 # Usage
 The first step is to add a dependency on `com.github.gino0631:xar-core` to your project, for example, if using Maven:
@@ -13,6 +14,15 @@ The first step is to add a dependency on `com.github.gino0631:xar-core` to your 
 <dependency>
   <groupId>com.github.gino0631</groupId>
   <artifactId>xar-core</artifactId>
+  <version>...</version>
+</dependency>
+```
+
+If your target environment does not provide Jakarta XML Binding 3.0 implementation, add an implementation of your choice as a dependency:
+```xml
+<dependency>
+  <groupId>org.glassfish.jaxb</groupId>
+  <artifactId>jaxb-runtime</artifactId>
   <version>...</version>
 </dependency>
 ```

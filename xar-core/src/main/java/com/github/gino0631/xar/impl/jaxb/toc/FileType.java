@@ -1,7 +1,7 @@
 package com.github.gino0631.xar.impl.jaxb.toc;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
 
 @XmlEnum
 public enum FileType {

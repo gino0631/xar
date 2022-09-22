@@ -1,7 +1,7 @@
 package com.github.gino0631.xar.impl.jaxb.adapters;
 
-import javax.xml.bind.DatatypeConverter;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public final class HexBinaryAdapter extends XmlAdapter<String, byte[]> {
     private static final char[] HEX_CODE = "0123456789abcdef".toCharArray();

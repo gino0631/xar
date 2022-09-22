@@ -12,7 +12,7 @@ import com.github.gino0631.xar.impl.signature.CmsSignature;
 import com.github.gino0631.xar.impl.signature.RsaSignature;
 import org.bouncycastle.tsp.TimeStampToken;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.*;
 import java.math.BigInteger;

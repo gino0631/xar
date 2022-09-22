@@ -7,7 +7,7 @@ import com.github.gino0631.xar.spi.XarArchiveSpi;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class XarArchiveSpiImpl implements XarArchiveSpi {
+public final class XarArchiveSpiImpl implements XarArchiveSpi {
     @Override
     public XarArchive load(Path file) throws IOException {
         return new XarArchiveImpl(file);
